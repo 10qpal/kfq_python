@@ -1,6 +1,7 @@
-from flask import Flask,request,render_template,redirect,url_for,jsonify
+from flask import Flask,request,render_template,redirect,url_for,jsonify,json
 import pymysql,os,cx_Oracle
 from flask_sqlalchemy import SQLAlchemy
+from json import JSONEncoder
 
 app=Flask(__name__)
 
@@ -35,6 +36,9 @@ class User(db.Model):
         self.usergender=usergender
         self.usertel=usertel
 
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)
 
 @app.route('/')
 def index():
@@ -110,7 +114,9 @@ def ajaxlistpost():
     userid = request.form.get('userid')
     query = User.query.filter(User.userid.like('%'+userid+'%')). order_by(User.userid)
     all_data = query.all()
-    return jsonify(all_data)    
+    print(all_data.toJSON())
+    #return jsonify(all_data)
+    return all_data.toJSON()       
 
 @app.route('/imglist')
 def imglist():
