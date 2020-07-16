@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, jsonify, url_for, json
 import pymysql, os, cx_Oracle
 from flask_sqlalchemy import SQLAlchemy
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -107,8 +108,8 @@ def ajaxlistget():
 def ajaxlistpost():
     userid = request.form.get('userid')
     query = User.query.filter(User.userid.like('%'+userid+'%')).order_by(User.userid)
-    all_data = query.all()
-    return jsonify(all_data)
+    df = pd.read_sql(query.statement, query.session.bind)
+    result = df.to_json(orient='records')
 
 @app.route('/imglist')
 def imglist():
